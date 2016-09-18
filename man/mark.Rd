@@ -13,6 +13,8 @@ mark(data = NULL)
 This function opens up the marking UI.
 }
 \examples{
-mark(dataframe)
+\dontrun{
+mark()
+}
 }
 

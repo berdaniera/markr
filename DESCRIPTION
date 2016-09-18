@@ -1,6 +1,6 @@
 Package: markr
 Type: Package
-Title: Human-assisted anomaly detection
+Title: markr / Human-assisted anomaly detection
 Version: 0.1
 Date: 2016-09-12
 Author: Aaron Berdanier
