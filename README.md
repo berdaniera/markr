@@ -19,8 +19,11 @@ devtools::install_github("berdaniera/markr")
 markr can easily be integrated into your existing analysis:
 
 ```r
-datin = readr::read_csv("./data/example.csv")
-data = tidyr::spread(datin, variable, value)
+# load example data
+data(markeg)
+# create data format for marking
+data = tidyr::spread(markeg, variable, value)
+# mark it up
 mark(data)
 ```
 
