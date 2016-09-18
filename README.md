@@ -1,4 +1,4 @@
-# markr<img src="/magic.png" height="25">
+# markr <img src="/magic.png" height="30">
 > Marking time series data in R
 
 markr provides a visual interface for rapid anomaly detection in time series data. It can be used as part of an analysis work flow or stand alone.
