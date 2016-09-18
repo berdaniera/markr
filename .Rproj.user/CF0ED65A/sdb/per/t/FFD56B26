@@ -1,0 +1,16 @@
+{
+    "contents" : "\\name{markr-package}\n\\alias{markr-package}\n\\alias{markr}\n\\docType{package}\n\\title{\n\\packageTitle{markr}\n}\n\\description{\n\\packageDescription{markr}\n}\n\\details{\n\nThe DESCRIPTION file:\n\\packageDESCRIPTION{markr}\n\\packageIndices{markr}\n~~ An overview of how to use the package, including the most ~~\n~~ important functions ~~\n\nmarkr provides a visual interface for rapid anomaly detection in time series data. \nIt can be used as part of an analysis workflow or stand alone, with examples included. \nThe package fits a machine learning algorithm to automatically suggest anomalies. \nThe user can keep those flags or mark new sections of the data and add flag names and comments. \nMarked data and flag metadata can be saved for future use. \nThe fitted model objects can be saved locally for training future data sets as well.\n}\n\\author{\n\\packageAuthor{Aaron Berdanier}\n\nMaintainer: \\packageMaintainer{Aaron Berdanier, aaron.berdanier@gmail.com}\n}\n\\references{\n~~ Literature or other references for background information ~~\n}\n~~ Optionally other standard keywords, one per line, from file ~~\n~~ KEYWORDS in the R documentation directory ~~\n\\keyword{ package }\n\\seealso{\n~~ Optional links to other man pages, e.g. ~~\n~~ \\code{\\link[<pkg>:<pkg>-package]{<pkg>}} ~~\n}\n\\examples{\n~~ simple examples of the most important functions ~~\n}\n",
+    "created" : 1473682574809.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1648965357",
+    "id" : "FFD56B26",
+    "lastKnownWriteTime" : 1473682614,
+    "path" : "~/Documents/markr/man/markr-package.Rd",
+    "project_path" : "man/markr-package.Rd",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_doc"
+}
