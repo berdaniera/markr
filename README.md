@@ -5,6 +5,8 @@ markr provides a visual interface for rapid anomaly detection in time series dat
 
 The package fits a machine learning algorithm (support vector machine) to automatically suggest anomalies. The user can keep those flags or mark new sections of the data and add flag names and comments. Marked data and flag metadata can be saved for future use. The fitted model objects can be saved locally for training future data sets as well.
 
+> Add a magic marker to your work flow
+
 ## Installation
 
 The package can be installed with this R command:
@@ -14,7 +16,7 @@ devtools::install_github("berdaniera/markr")
 
 ## Usage example
 
-markr can easily be integrated into your existing workflow:
+markr can easily be integrated into your existing analysis:
 
 ```r
 datin = readr::read_csv("./data/example.csv")
