@@ -30,7 +30,7 @@ will open the UI and allow you to upload a new file. Files that you upload throu
 
 ## Dependencies
 
-This package has the following dependencies: dplyr, e1071, ggplot2, readr, shiny, tidyr.
+This package requires the following additional packages to work correctly: dplyr, e1071, ggplot2, readr, shiny, tidyr.
 
 ## FYI
 
