@@ -1,4 +1,4 @@
-# markr/
+# markr/ <i class="fa fa-magic" aria-hidden="true"></i>
 > Marking time series data in R
 
 markr provides a visual interface for rapid anomaly detection in time series data. It can be used as part of an analysis work flow or stand alone.
@@ -9,7 +9,7 @@ The package fits a machine learning algorithm (support vector machine) to automa
 
 The package can be installed with this R command:
 ```r
-devtools::install_github("berdaniera/readr")
+devtools::install_github("berdaniera/markr")
 ```
 
 ## Usage example
