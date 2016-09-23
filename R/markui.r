@@ -1,7 +1,7 @@
 require(shiny)
 markui = fluidPage(title="markr/",
   wellPanel(HTML(paste0(
-    "<center><font style='font-family:sans-serif; font-size:80px'>markr</font> <font style='font-size:55px'>",icon("magic"),"</font><br>"
+    "<center><font style='font-family:sans-serif; font-size:45px'>markr</font> <font style='font-size:30px'>",icon("magic"),"</font><br>"
   ))),
   sidebarLayout(
   sidebarPanel(
@@ -40,7 +40,9 @@ markui = fluidPage(title="markr/",
       actionButton("egdata","Generate example training and test data"),
       checkboxInput("egshow","Show test data on graph"),
       plotOutput("egplot")
-    )
+    ),
+    br(),br(),
+    HTML("<center><font color='#aaa'><i>Built by <a href='http://github.com/berdaniera/'>Aaron</a>. Powered by <a href='http://shiny.rstudio.com/'>Shiny.</a></i></font></center>")
   ),
   mainPanel(
     fluidRow(
@@ -90,6 +92,6 @@ markui = fluidPage(title="markr/",
         plotOutput("flagplot", dblclick = "plot_dblclick", brush = brushOpts(id = "plot_brush",direction="x"))
     ))
   )
-  ),
-  wellPanel(HTML("<center><font color='#aaa'><i>Built by <a href='http://github.com/berdaniera/'>Aaron</a>. Powered by <a href='http://shiny.rstudio.com/'>Shiny.</a></i></font></center>"))
+  )#,
+#  wellPanel(HTML("<center><font color='#aaa'><i>Built by <a href='http://github.com/berdaniera/'>Aaron</a>. Powered by <a href='http://shiny.rstudio.com/'>Shiny.</a></i></font></center>"))
 )
