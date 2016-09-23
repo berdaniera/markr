@@ -19,6 +19,7 @@ devtools::install_github("berdaniera/markr")
 markr can easily be integrated into your existing analysis:
 
 ```r
+library(markr)
 # load example data
 data(markeg)
 # create data format for marking
