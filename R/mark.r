@@ -31,7 +31,7 @@ mark <- function(data=NULL) {
       # Load new data
       dataup = reactive({
         inFile = input$file1
-        print(input$file1)
+        #print(input$file1)
         if (is.null(inFile))
           return(NULL)
         readr::read_csv(inFile$datapath)
@@ -45,23 +45,24 @@ mark <- function(data=NULL) {
           output$fitbutton = renderUI(actionButton("fitButton", "Fit it!"))
         }
       })
-
-      if(datain){
-        if(colnames(data)[1]!="DateTime"){
-          ccn = colnames(data)
-          data = data %>% select_(.dots=c("DateTime",ccn[-grep("DateTime",ccn)]))
+      observe({
+        if(datain){
+          if(colnames(data)[1]!="DateTime"){
+            ccn = colnames(data)
+            data = data %>% select_(.dots=c("DateTime",ccn[-grep("DateTime",ccn)]))
+          }
+          dat$up = data
+          cvars = colnames(dat$up)[!colnames(dat$up)%in%c("DateTime","flags")]
+          updateSelectizeInput(session, "vari", choices=cvars, server=TRUE)
+          output$fitbutton = renderUI(actionButton("fitButton", "Fit it!"))
+        }else{ # data don't exist or are incorrect
+          # display the file upload interface
+          output$fileup = renderUI(HTML(paste0(
+            "<i>Data requirements:</i> A first column named 'DateTime' with an R-readable date or time format and at least one data column.",
+            fileInput('file1', '1. Upload data to test for anomalies.', accept=c('text/csv','text/comma-separated-values,text/plain','.csv'))
+          )))
         }
-        dat$up = data
-        cvars = colnames(dat$up)[!colnames(dat$up)%in%c("DateTime","flags")]
-        updateSelectizeInput(session, "vari", choices=cvars, server=TRUE)
-        output$fitbutton = renderUI(actionButton("fitButton", "Fit it!"))
-      }else{ # data don't exist or are incorrect
-        # display the file upload interface
-        output$fileup = renderUI(HTML(paste0(
-          "<i>Data requirements:</i> A first column named 'DateTime' with an R-readable date or time format and at least one data column.",
-          fileInput('file1', '1. Upload data to test for anomalies.', accept=c('text/csv','text/comma-separated-values,text/plain','.csv'))
-        )))
-      }
+      })
     ######## MODEL CONTROLS
       # If the model directory exists, update model list
       if(dir.exists("previously_flagged_data/")){
@@ -102,7 +103,7 @@ mark <- function(data=NULL) {
             preddat = dat$up %>% select_(.dots=mcols)
             if(input$delt) preddat = preddat %>% mutate_each(funs( delta=c(0,diff(.)) ))
             dat$up$f[!predict(mod, preddat)] = 1 # flagged
-            dat$f = factor(dat$f,levels=0:2)
+            dat$up$f = factor(dat$up$f,levels=0:2)
             d = dat$up %>% select_(.dots=c("DateTime",mcols,"f")) %>% gather(variable, value, -DateTime, -f)
             d$variable = factor(d$variable, levels=unique(d$variable))
             flags$d = d
@@ -129,7 +130,7 @@ mark <- function(data=NULL) {
         if(!is.null(flags$d)){
           output$flagplot = renderPlot({
             ptsz = rep(1,nrow(flags$d))
-            ptsz[flags$d$f > 0] = 4
+            ptsz[which(flags$d$f != 0)] = 4
             ggplot(flags$d, aes(DateTime, value, col=f)) +
               geom_point(shape=20,size=ptsz) +
               facet_grid(variable~.,scales='free_y') +
