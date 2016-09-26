@@ -28,11 +28,10 @@ data = tidyr::spread(markeg, variable, value)
 mark(data)
 ```
 
-The interface can also be used without any pre-loaded data. Simply calling:
+The interface can also be used without any pre-loaded data. You can open the UI and upload a new file by calling calling:
 ```r
 mark()
 ```
-will open the UI and allow you to upload a new file.
 
 ## Input data
 
