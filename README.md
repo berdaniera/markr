@@ -32,7 +32,16 @@ The interface can also be used without any pre-loaded data. Simply calling:
 ```r
 mark()
 ```
-will open the UI and allow you to upload a new file. Files that you upload through the interface must meet the data formatting requirements: 1) a first column with a date-time format named 'DateTime' and additional columns with variables and 2) one row for each date-time and only one header row.
+will open the UI and allow you to upload a new file.
+
+## Input data
+
+The data that you enter must meet the formatting requirements:
+
+* a first column with a date-time format named 'DateTime'
+* additional columns with variables
+* one row for each date-time
+* only one header row
 
 ## Dependencies
 
