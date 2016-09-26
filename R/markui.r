@@ -1,7 +1,7 @@
 require(shiny)
 markui = fluidPage(title="markr/",
   wellPanel(HTML(paste0(
-    "<center><font style='font-family:sans-serif; font-size:45px'>markr</font> <font style='font-size:30px'>",icon("magic"),"</font><br>"
+    "<center><font style='font-family:sans-serif; font-size:45px'>markr</font> <font style='font-size:30px'>",icon("magic"),"</font></center>"
   ))),
   sidebarLayout(
   sidebarPanel(
@@ -15,7 +15,7 @@ markui = fluidPage(title="markr/",
         selectizeInput("vari", "Choose variables for training model:", choices=NULL, multiple=TRUE),
         # enter filters for training data
         textInput("filt", "Enter data filter to apply for training data (optional):",placeholder="Temp<20&DateTime>'2016-01-01'"),
-        p("This is a conditional statement. For help, ",actionLink("conditionals","click here.")),
+        HTML(paste0("<i>This is a conditional statement.</i> For help, ",actionLink("conditionals","click here."))),
         conditionalPanel("input.conditionals%2 == 1",
           "Need to add some description of conditional statements here."
         ),
@@ -81,9 +81,11 @@ markui = fluidPage(title="markr/",
           column(width=8,textInput("flag_comments","Flag comment:",placeholder="Enter flag comments"))
         ),
         fluidRow(column(width=12,
-          actionButton("flag_save", "Save stored flags and clean data for future model fits", icon=icon("folder"),
+          actionButton("flag_save", "Save flags and data for future fits", icon=icon("folder"),
             style="color: #fff; background-color: #337ab7; border-color: #fff"),
-          actionButton("flag_save", "Download flagged data and metadata as .csv", icon=icon("download"))
+          actionButton("flag_download", "Download data and metadata as .csv", icon=icon("download")),
+          actionButton("flag_return", "Return flags and model object in R", icon=icon("terminal"),
+            style="color: #fff; background-color: #ff6a80; border-color: #fff")
         )),
         textOutput("loadtext")
       )

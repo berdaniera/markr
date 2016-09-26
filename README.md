@@ -20,15 +20,17 @@ markr can easily be integrated into your existing analysis:
 
 ```r
 library(markr)
+# set working directory for output
+setwd(".")
 # load example data
 data(markeg)
-# create data format for marking
+# match required data format for marking
 data = tidyr::spread(markeg, variable, value)
 # mark it up
 mark(data)
 ```
 
-The interface can also be used without any pre-loaded data. You can open the UI and upload a new file by calling calling:
+The interface can also be used without any pre-loaded data. You can open the UI and upload a new file by calling:
 ```r
 mark()
 ```
@@ -41,6 +43,14 @@ The data that you enter must meet the formatting requirements:
 * additional columns with variables
 * one row for each date-time
 * only one header row
+
+## Outputs
+
+Flagged data can be stored for future use in three ways:
+
+1. Saving flagged data for training future datasets from the same data source (in a subdirectory of your current working directory).
+2. Saving a copy of your original dataset with a new 'Flag' column and flag metadata as `.csv` files in your current working directory.
+3. Returning a list (`markOut`) to your current R workspace that includes the flagged data (`data`), flag metadata (`flags`), and the model object (`model`).
 
 ## Dependencies
 

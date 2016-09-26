@@ -24,10 +24,11 @@ mark <- function(data=NULL) {
     ui = markui,
     server = function(input, output, session) {
     ######## DATA CONTROLS
-      flags = reactiveValues(d=NULL,f=NULL)  # placeholder for model flagged data
+      flags = reactiveValues(d=NULL,f=NULL,m=NULL)  # placeholder for model flagged data
       # d is the data with a flag column
       # f is the flag list
-      dat = reactiveValues(up=NULL)  # placeholder for data
+      # m is the model
+      dat = reactiveValues(up=NULL,mcols=NULL,delt=FALSE)  # placeholder for data
       # Load new data
       dataup = reactive({
         inFile = input$file1
@@ -58,7 +59,7 @@ mark <- function(data=NULL) {
         }else{ # data don't exist or are incorrect
           # display the file upload interface
           output$fileup = renderUI(HTML(paste0(
-            "<i>Data requirements:</i> A first column named 'DateTime' with an R-readable date or time format and at least one data column.",
+            "<i>Data requirements:</i> A first column named 'DateTime' with an R-readable date or time format and at least one data column.<br>",
             fileInput('file1', '1. Upload data to test for anomalies.', accept=c('text/csv','text/comma-separated-values,text/plain','.csv'))
           )))
         }
@@ -84,32 +85,37 @@ mark <- function(data=NULL) {
             load(paste0("previously_flagged_data/",input$predat,".Rda")) # load existing model objects
             # needs to have "mod" and "mcols"
             traindat = flagged
-            mcols = colnames(traindat)
+            dat$mcols = unique(unlist(strsplit(colnames(traindat),"_delta")))
+            dat$delt = indelt
             updateSelectizeInput(session, "flag_name", choices=flagids, server=FALSE)
           }else{ # Else, fit a new model
-            mcols = input$vari
+            dat$mcols = input$vari
             if(input$filt==""){
-              traindat = dat$up %>% select_(.dots=mcols)
+              traindat = dat$up %>% select_(.dots=dat$mcols)
             }else{
-              traindat = dat$up %>% filter_(.dots=input$filt) %>% select_(.dots=mcols)
+              traindat = dat$up %>% filter_(.dots=input$filt) %>% select_(.dots=dat$mcols)
             }
-            if(input$delt) traindat = traindat %>% mutate_each(funs( delta=c(0,diff(.)) ))
+            if(input$delt){
+              traindat = traindat %>% mutate_each(funs( delta=c(0,diff(.)) ))
+              dat$delt = TRUE
+            }
           }
           # check if all data columns in model are in data
-          if(all(mcols%in%colnames(dat$up))){
+          if(all(dat$mcols%in%colnames(dat$up))){
             mod = e1071::svm(traindat, nu=input$nu, scale=TRUE, type='one-classification', kernel='radial')
             # predict flags for uploaded data
             dat$up$f = 0
-            preddat = dat$up %>% select_(.dots=mcols)
-            if(input$delt) preddat = preddat %>% mutate_each(funs( delta=c(0,diff(.)) ))
+            preddat = dat$up %>% select_(.dots=dat$mcols)
+            if(dat$delt) preddat = preddat %>% mutate_each(funs( delta=c(0,diff(.)) ))
             dat$up$f[!predict(mod, preddat)] = 1 # flagged
             dat$up$f = factor(dat$up$f,levels=0:2)
-            d = dat$up %>% select_(.dots=c("DateTime",mcols,"f")) %>% gather(variable, value, -DateTime, -f)
+            d = dat$up %>% select_(.dots=c("DateTime",dat$mcols,"f")) %>% gather(variable, value, -DateTime, -f)
             d$variable = factor(d$variable, levels=unique(d$variable))
             flags$d = d
+            flags$m = mod
             output$fiterr = renderUI(HTML(""))
           }else{
-            output$fiterr = renderUI(HTML(paste("<font color='red'>Model columns <i>",mcols[which(!mcols%in%colnames(dat$up))],"</i> not in loaded data.<br>Please check your data and reupload.</font>")))
+            output$fiterr = renderUI(HTML(paste("<font color='red'>Model columns <i>",dat$mcols[which(!dat$mcols%in%colnames(dat$up))],"</i> not in loaded data.<br>Please check your data and reupload.</font>")))
           }
         }
       })
@@ -170,7 +176,8 @@ mark <- function(data=NULL) {
         storeflags = brushedLogic(flags$d, input$plot_brush)
         if(any(storeflags) & !is.null(input$flag_name)){
           flags$d$f[which(storeflags&flags$d$f==1)] = 2 # stored!
-          flaglist = list(ID=input$flag_name, comment=input$flag_comment, flags=flags$d$DateTime[storeflags])
+          comments = ifelse(is.null(input$flag_comment),"",input$flag_comment)
+          flaglist = list(ID=input$flag_name, comment=comments, flags=flags$d$DateTime[storeflags])
           if(is.null(flags$f)){
             flags$f = list(flaglist)
           }else{
@@ -187,11 +194,13 @@ mark <- function(data=NULL) {
         # need DF with model fit columns and rows that are not in flags
         # and a list of the unique flag names
         #remove rows with stored flags
-        flagged = flags$d %>% filter(f!=2) %>% spread(variable,value) %>% select_(.dots=input$vari) # not flagged data
+        flagged = flags$d %>% filter(f!=2) %>% spread(variable,value) %>% select_(.dots=dat$mcols) # not flagged data
+        if(dat$delt) flagged = flagged %>% mutate_each(funs( delta=c(0,diff(.)) ))
         flagids = unique(unlist(lapply(flags$f, function(x) x$ID))) # unique flags
         if(!dir.exists("previously_flagged_data/")) dir.create("previously_flagged_data/")
         savefn = function(){ paste0("previously_flagged_data/",sub("(.*)\\..*", "\\1", input$file1$name),"-",Sys.Date(), ".Rda") }
-        save(flagged,flagids,file=savefn())
+        indelt = input$delt
+        save(flagged,flagids,indelt,file=savefn())
         output$loadtext = renderText(paste0("Saved ",length(flagids)," flags."))
         updateTextInput(session, "flag_comments", value="")
         updateSelectizeInput(session, "flag_name", choices=flagids, server=FALSE)
@@ -203,9 +212,17 @@ mark <- function(data=NULL) {
         flaggeddat = left_join(dataup(),flagIDs, by="DateTime")
         filename2 = function(){ paste0(sub("(.*)\\..*", "\\1", input$file1$name),"-FLAGMETA-",Sys.Date(),".csv") }
         flaggedmeta = do.call("rbind", lapply(flags$f, function(x) data_frame(Flag=x$ID,MinDate=min(x$flags),MaxDate=max(x$flags),Comments=x$comment)))
-        readr::write_csv(flaggeddat, filename1)
-        readr::write_csv(flaggedmeta, filename2)
-        output$loadtext = renderText(paste0("Saved ",filename1," and ",filename2," to current working directory."))
+        readr::write_csv(flaggeddat, path=filename1())
+        readr::write_csv(flaggedmeta, path=filename2())
+        output$loadtext = renderText(paste0("Saved ",filename1()," and ",filename2()," to current working directory."))
+      })
+      # RETURN TO R
+      observeEvent(input$flag_return,{
+        flagIDs = do.call("rbind", lapply(flags$f, function(x) data_frame(DateTime=x$flags,Flag=x$ID)))
+        flaggeddat = left_join(dataup(),flagIDs, by="DateTime")
+        markOut <<- list(data=flaggeddat,flags=flags$f,model=flags$m)
+        print("Output saved in 'markOut'")
+        stopApp()
       })
     ######### EXAMPLE CODE
       observeEvent(input$egdata,{ # generate new random eg data
@@ -227,6 +244,6 @@ mark <- function(data=NULL) {
         })
       })
     },
-    options = list(shiny.maxRequestSize=30*1024^2)
+    options = list(shiny.maxRequestSize=50*1024^2)
   )
 }
